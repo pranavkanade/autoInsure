@@ -1,15 +1,59 @@
 pragma solidity ^0.4.24;
 
-contract Insurance {
-    address public cInsured;
-    uint public cInsuredAmt;
-    constructor () public payable {
-        cInsured = msg.sender;
-        cInsuredAmt = msg.value;
+contract InsuranceCompany {
+    mapping(uint => address) public FlightsInsured;
+    // uint [] public AllInsuredFlights;
+
+    function registerFlight(uint id, uint from, uint to) public {
+        address flightInsuranceInstance = new Insurance(id, from, to);
+        FlightsInsured[id] = flightInsuranceInstance;
     }
 
-    modifier personInsuredOnly (address caller) {
-        require(cInsured == caller);
+    function getInsuredFlight(uint id) public view returns(address) {
+        return FlightsInsured[id];
+    }
+}
+
+contract Insurance {
+    uint public flightId;
+    uint public flightFromCity;
+    uint public flightToCity;
+
+    enum InsurancePackage {
+        NONE,
+        BASIC,
+        REGULAR,
+        PREMIUM
+    }
+
+    struct Subscriber {
+        bool cIsInsured;
+        address cInsuredCustomer;
+        InsurancePackage cPackage;
+    }
+
+    mapping(address => Subscriber) flightSubscribers;
+
+    modifier onlyIfSelectedValidPackage(uint package) {
+        require(package <= 3 && package >= 1);
         _;
+    }
+
+    constructor(uint id, uint from, uint to) public {
+        flightId = id;
+        flightFromCity = from;
+        flightToCity = to;
+    }
+
+    function addSubscriber(uint package)
+    onlyIfSelectedValidPackage(package)
+    payable public returns(bool) {
+        Subscriber memory newSubscriber = Subscriber({
+            cIsInsured: true,
+            cInsuredCustomer: msg.sender,
+            cPackage: InsurancePackage(package)
+        });
+        flightSubscribers[msg.sender] = newSubscriber;
+        return true;
     }
 }

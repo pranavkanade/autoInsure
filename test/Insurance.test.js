@@ -5,8 +5,13 @@ const provider = ganache.provider();
 
 const web3 = new Web3(provider);
 
+// add more event listerns
+require('events').EventEmitter.defaultMaxListeners = 50;
+
+const compiledInsuranceCompany = require('./../Contracts/build/InsuranceCompany.json')
 const compiledInsuranceContract = require('./../Contracts/build/Insurance.json')
 // settle the variables needed
+let InsuranceCompany;
 let InsuranceContract;
 let accounts;
 
@@ -14,16 +19,16 @@ beforeEach(
     async () => {
         accounts = await web3.eth.getAccounts();
 
-        InsuranceContract = await new web3.eth.Contract(
-            JSON.parse(compiledInsuranceContract.interface)
+        InsuranceCompany = await new web3.eth.Contract(
+            JSON.parse(compiledInsuranceCompany.interface)
         )
-            .deploy({ data: compiledInsuranceContract.bytecode })
-            .send({ from: accounts[0], value: '1000000', gas:'5000000'});
+            .deploy({ data: compiledInsuranceCompany.bytecode })
+            .send({ from: accounts[0], gas:'5000000'});
     }
 );
 
-describe("Insurance Contract", () => {
+describe("Insurance Company", () => {
     it("gets deployed", async () => {
-        assert.ok(InsuranceContract);
+        assert.ok(InsuranceCompany.options.address);
     });
 });
