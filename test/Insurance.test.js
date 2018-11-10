@@ -57,3 +57,23 @@ describe("Insurance Company", () => {
         assert.ok(InsuranceContract);
     });
 });
+
+describe("Insurance Contract", () => {
+    let package = 1;
+    it("Lets one subscribe to itself", async () => {
+        await InsuranceContract.methods.addSubscriber(package)
+            .send({
+                from: accounts[1],
+                value: web3.utils.toWei('1', 'ether'),
+                gas: '5000000' });
+        await InsuranceContract.methods.addSubscriber(package)
+            .send({
+                from: accounts[2],
+                value: web3.utils.toWei('1', 'ether'),
+                gas: '5000000' });
+
+        let subsCount = await InsuranceContract.methods.getSubscriberCount()
+                .call();
+        assert.equal(2, subsCount);
+    });
+});
