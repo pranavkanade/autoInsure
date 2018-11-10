@@ -76,4 +76,29 @@ describe("Insurance Contract", () => {
                 .call();
         assert.equal(2, subsCount);
     });
+
+    it("Lets settle the contract", async () => {
+        await InsuranceContract.methods.addSubscriber(package)
+            .send({
+                from: accounts[1],
+                value: '2000',
+                gas: '5000000' });
+        await InsuranceContract.methods.addSubscriber(package)
+            .send({
+                from: accounts[2],
+                value: '2000',
+                gas: '5000000' });
+
+        let bal = await web3.eth.getBalance(InsuranceContract.options.address);
+        console.log("balance before settlement : ", bal);
+
+        await InsuranceContract.methods.settleContract()
+            .send({
+                from: accounts[0],
+                gas: '5000000'
+            });
+
+        bal = await web3.eth.getBalance(InsuranceContract.options.address);
+        console.log("balance after settlement : ", bal);
+    });
 });

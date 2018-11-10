@@ -19,6 +19,7 @@ contract Insurance {
     uint public flightFromCity;
     uint public flightToCity;
     uint public subscriberCount;
+    address[] private subscriberList;
 
     enum InsurancePackage {
         NONE,
@@ -52,6 +53,7 @@ contract Insurance {
         onlyIfSelectedValidPackage(package)
         returns(bool)
     {
+        subscriberList.push(msg.sender);
         Subscriber memory newSubscriber = Subscriber({
             cIsInsured: true,
             cInsuredCustomer: msg.sender,
@@ -68,5 +70,19 @@ contract Insurance {
         returns(uint)
     {
         return subscriberCount;
+    }
+
+    function settleContract()
+        public
+        payable
+        returns (bool)
+    {
+        uint settlementAmt = address(this).balance/subscriberList.length;
+        for(uint i = 0; i < subscriberList.length; i++){
+            subscriberList[i].transfer(
+                settlementAmt
+            );
+        }
+        return true;
     }
 }
