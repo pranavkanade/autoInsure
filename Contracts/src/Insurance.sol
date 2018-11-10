@@ -18,6 +18,7 @@ contract Insurance {
     uint public flightId;
     uint public flightFromCity;
     uint public flightToCity;
+    uint public subscriberCount;
 
     enum InsurancePackage {
         NONE,
@@ -46,14 +47,26 @@ contract Insurance {
     }
 
     function addSubscriber(uint package)
-    onlyIfSelectedValidPackage(package)
-    payable public returns(bool) {
+        public
+        payable
+        onlyIfSelectedValidPackage(package)
+        returns(bool)
+    {
         Subscriber memory newSubscriber = Subscriber({
             cIsInsured: true,
             cInsuredCustomer: msg.sender,
             cPackage: InsurancePackage(package)
         });
         flightSubscribers[msg.sender] = newSubscriber;
+        subscriberCount++;
         return true;
+    }
+
+    function getSubscriberCount()
+        public
+        view
+        returns(uint)
+    {
+        return subscriberCount;
     }
 }
